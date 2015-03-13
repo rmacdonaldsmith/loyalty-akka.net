@@ -38,11 +38,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Messages.cs" />
+    <Compile Include="PointsService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedemptionProcessManager.cs" />
     <Compile Include="BecomeProcessManager.cs" />
     <Compile Include="RedemptionController.cs" />
     <Compile Include="RedemptionProcessState.cs" />
+    <Compile Include="SiftService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
