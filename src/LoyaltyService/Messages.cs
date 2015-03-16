@@ -104,6 +104,17 @@ namespace LoyaltyService
                     FraudCheckReason = fraudCheckReason;
                 }
             }
+
+            public class PointsBalanceResult : RedemptionBase
+            {
+                public int PointsBalance { get; private set; }
+
+                public PointsBalanceResult(long gpid, int balance)
+                    : base (gpid)
+                {
+                    PointsBalance = balance;
+                }
+            }
         }
     }
 }

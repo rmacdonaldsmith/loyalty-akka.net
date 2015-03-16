@@ -4,15 +4,6 @@ using Akka.Actor;
 
 namespace LoyaltyService
 {
-	public enum States
-	{
-		StartingRedemption,
-		PerformingFraudCheck,
-		CheckingPointsBalance,
-		OrderingGiftCard,
-		GiftCardOrdered
-	}
-
 	public class RedemptionProcessManager : ReceiveActor
 	{
 	    private readonly Guid _redemptionId;
@@ -22,7 +13,7 @@ namespace LoyaltyService
 	    private readonly ActorRef _giftService;
 
         //pass in sift, points and gift services as they are totally stateless with respect to the redeption process; they dont care
-        //about the current redmptionIdS
+        //about the current redmptionId
 	    public RedemptionProcessManager (Guid redemptionId, ActorRef siftService, ActorRef pointsService, ActorRef giftService)
 	    {
 	        _redemptionId = redemptionId;
@@ -34,13 +25,13 @@ namespace LoyaltyService
 		    Receive<Messages.Commands.StartOTGiftCardRedemption>(msg =>
 		        {
                     _redemptionStateActor.Tell(msg, Self); //todo: is Self implicitly sent with Tell(), do I need to specify Self here?
-                    _siftService.Tell(new Messages.Commands.DoFraudCheck(), Self);
+                    _siftService.Tell(new Messages.Commands.DoFraudCheck(msg.Gpid), Self);
 		            return true;
 		        });
 
 	        Receive<Messages.Events.OTGiftCardRedemptionStarted>(msg =>
 	            {
-	                
+	                //do i need to Become in here so that i can start to coordinate other message interactions?
 	            });
 
 	        Receive<Messages.Events.FraudCheckPassed>(msg => _redemptionStateActor.Tell(msg));
