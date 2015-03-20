@@ -11,6 +11,7 @@ namespace LoyaltyService
     {
         StartingRedemption,
         PerformingFraudCheck,
+        FraudCheckPassed,
         CheckingPointsBalance,
         OrderingGiftCard,
         GiftCardOrdered,
@@ -19,41 +20,44 @@ namespace LoyaltyService
 
     public class RedemptionProcessState : ReceiveActor
     {
-        private readonly ActorRef _processManager;
         private Guid _redemptionId;
         private long _gpid;
         private States _currentState = States.None;
         private bool _passedFraudCheck;
 
-        public RedemptionProcessState(ActorRef processManager)
+        public RedemptionProcessState()
         {
-            _processManager = processManager;
+            StartRedemptionProcess();
+        }
 
+        private void StartRedemptionProcess()
+        {
             Receive<Messages.Commands.StartOTGiftCardRedemption>(msg =>
+            {
+                _redemptionId = Guid.NewGuid();
+                _currentState = States.StartingRedemption;
+                Sender.Tell(new Messages.Events.OTGiftCardRedemptionStarted(msg.Gpid));
+                //_processManager.Tell(new Messages.Events.OTGiftCardRedemptionStarted(msg.Gpid));
+                Become(WaitingForFraudCheck);
+            });
+        }
+
+        private void WaitingForFraudCheck()
+        {
+            Receive<Messages.Events.FraudCheckPassed>(passed =>
                 {
-                    _redemptionId = Guid.NewGuid();
-                    _currentState = States.StartingRedemption;
-                    _processManager.Tell(new Messages.Events.OTGiftCardRedemptionStarted(msg.Gpid));
-                    Become(m =>
-                        {
-                            if (m is Messages.Events.FraudCheckPassed)
-                            {
-
-                            }
-                        });
+                    _passedFraudCheck = true;
+                    Context.ActorSelection("/user/redemptionController/redemptionProcessManager").Tell(new Messages.Events.OTGiftCardRedemptionStarted(passed.Gpid));
+                
+                    //_processManager.Tell(new Messages.Commands.CheckPointsBalance(passed.Gpid));
+                    Become(WaitingForPointsBalance);
                 });
-
-
 
         }
 
-        private void HandleFraudCheckPassed(Messages.Events.FraudCheckPassed passed)
+        private void WaitingForPointsBalance()
         {
-            _passedFraudCheck = true;
-            Become((msg) =>
-                {
-                    
-                });
+             
         }
     }
 }

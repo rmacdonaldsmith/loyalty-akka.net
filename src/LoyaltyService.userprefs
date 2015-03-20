@@ -1,14 +1,25 @@
-﻿<Properties StartupItem="LoyaltyService/LoyaltyService.csproj">
+﻿<Properties StartupItem="LoyaltyService.API.HTTP.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="LoyaltyService/RedemptionController.cs">
-    <Files>
-      <File FileName="LoyaltyService/RedemptionProcessManager.cs" Line="1" Column="1" />
-      <File FileName="LoyaltyService/BecomeProcessManager.cs" Line="5" Column="5" />
-      <File FileName="LoyaltyService/RedemptionController.cs" Line="5" Column="5" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches>
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/PriorityQueue/ExtensionMethods.cs" line="25" offsetX="317" offsetY="158" expression="pq" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/PriorityQueue/MinPriorityQueue.cs" line="142" offsetX="448" offsetY="2032" expression="i" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/PriorityQueue/MinPriorityQueue.cs" line="142" offsetX="560" offsetY="2032" expression="j" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.Core/Peristence/Postgres/PostgresCommandFactory.cs" line="42" offsetX="580" offsetY="615" expression="command.CommandText" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.Core.Tests/Persistence/A_CancellationReplayer.cs" line="27" offsetX="545" offsetY="125" expression="reminders" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.Core.Tests/Persistence/A_CancellationReplayer.cs" line="31" offsetX="1150" offsetY="127" expression="cancellations" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.Core.Tests/Persistence/Postgres/A_CancellationReplayer.cs" line="33" offsetX="495" offsetY="118" expression="cancel.ReminderId" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.API.HTTP.Tests/When_the_service_restarts.cs" line="18" offsetX="1182" offsetY="96" expression="this._scheduledReminders" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.API.HTTP.Tests/When_the_service_restarts.cs" line="18" offsetX="86" offsetY="228" expression="this._scheduledReminders" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.API.HTTP.Tests/When_the_service_restarts.cs" line="21" offsetX="797" offsetY="229" expression="this._sentReminderIds" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.API.HTTP.Tests/When_the_service_restarts.cs" line="20" offsetX="537" offsetY="476" expression="this._canceledReminderIds" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.API.HTTP/Validation/ScheduleReminderRequestValidator.cs" line="59" offsetX="594" offsetY="750" expression="dueAtString" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.API.HTTP/Validation/ScheduleReminderRequestValidator.cs" line="83" offsetX="601" offsetY="1026" expression="giveupAfterUtc" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.API.HTTP/Validation/ScheduleReminderRequestValidator.cs" line="84" offsetX="964" offsetY="1026" expression="dueAtUtc" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.API.HTTP/Validation/ScheduleReminderRequestValidator.cs" line="67" offsetX="591" offsetY="808" expression="dueAtUtc" liveUpdate="False" />
+    <Watch file="../../../../../GitHub/ForgetMeNot/src/ReminderService/ReminderService.API.HTTP/Validation/ScheduleReminderRequestValidator.cs" line="68" offsetX="856" offsetY="808" expression="utcNow" liveUpdate="False" />
+  </MonoDevelop.Ide.DebuggingService.PinnedWatches>
 </Properties>
