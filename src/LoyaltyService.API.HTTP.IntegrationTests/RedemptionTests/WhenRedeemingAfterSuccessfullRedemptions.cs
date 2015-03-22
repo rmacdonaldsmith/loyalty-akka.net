@@ -1,9 +1,6 @@
-﻿using LoyaltyService.Messages;
+﻿using LoyaltyService.API.HTTP.Models;
 using Nancy;
-using Nancy.Testing;
 using NUnit.Framework;
-using System;
-using LoyaltyService.API.HTTP.Models;
 
 namespace LoyaltyService.API.HTTP.IntegrationTests.RedemptionTests
 {
