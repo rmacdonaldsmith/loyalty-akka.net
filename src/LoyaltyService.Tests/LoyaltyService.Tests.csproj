@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedemptionProcessManagerStateTests.cs" />
+    <Compile Include="WhenRedeemingAnOtGiftCard.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LoyaltyService\LoyaltyService.csproj">

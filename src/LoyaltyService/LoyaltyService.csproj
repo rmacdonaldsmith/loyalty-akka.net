@@ -34,6 +34,9 @@
     <Reference Include="Akka.TestKit.Xunit">
       <HintPath>..\packages\Akka.TestKit.Xunit.0.8.0\lib\net45\Akka.TestKit.Xunit.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\LoyaltyService.API.HTTP.IntegrationTests\bin\Debug\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -46,18 +49,29 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FraudCheckerActor.cs" />
+    <Compile Include="FraudDetection\Messages\SiftAddress.cs" />
+    <Compile Include="FraudDetection\Messages\SiftBaseResponse.cs" />
+    <Compile Include="FraudDetection\Messages\SiftCreateOrder.cs" />
+    <Compile Include="FraudDetection\Messages\SiftOrderResponse.cs" />
+    <Compile Include="FraudDetection\Messages\SiftScoreResponse.cs" />
+    <Compile Include="FraudDetection\SiftException.cs" />
+    <Compile Include="FraudDetection\SiftService.cs" />
+    <Compile Include="FraudDetection\SiftServiceActor.cs" />
     <Compile Include="GiftService.cs" />
     <Compile Include="Messages.cs" />
     <Compile Include="PointsService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RedemptionProcessManager.cs" />
+    <Compile Include="RedemptionProcessBroker.cs" />
     <Compile Include="BecomeProcessManager.cs" />
     <Compile Include="RedemptionController.cs" />
     <Compile Include="RedemptionProcessState.cs" />
-    <Compile Include="SiftService.cs" />
+    <Compile Include="TMSService.cs" />
+    <Compile Include="UserService.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
 </Project>

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using Akka.Actor;
 
 namespace LoyaltyService
@@ -20,13 +17,37 @@ namespace LoyaltyService
 
     public class RedemptionProcessState : ReceiveActor
     {
+        private readonly ActorRef _processBroker;
         private Guid _redemptionId;
         private long _gpid;
+        private int _pointsRequired;
+        private string _userEmail;
+        private string _ccy;
         private States _currentState = States.None;
         private bool _passedFraudCheck;
+        private CancellationToken _timeoutCancellation = new CancellationToken();
 
-        public RedemptionProcessState()
+        #region messages
+
+        public class FraudCheckTimedOut
         {
+            //empty?
+        }
+
+        public class InsufficientPoints
+        {
+            public long GPID { get; set; }
+            public int PointsRequired { get; set; }
+            public int PointsBalance { get; set; }
+        }
+
+
+
+        #endregion
+
+        public RedemptionProcessState(ActorRef processBroker)
+        {
+            _processBroker = processBroker;
             StartRedemptionProcess();
         }
 
@@ -36,28 +57,67 @@ namespace LoyaltyService
             {
                 _redemptionId = Guid.NewGuid();
                 _currentState = States.StartingRedemption;
-                Sender.Tell(new Messages.Events.OTGiftCardRedemptionStarted(msg.Gpid));
-                //_processManager.Tell(new Messages.Events.OTGiftCardRedemptionStarted(msg.Gpid));
+                _pointsRequired = msg.PointsAmount;
+                _userEmail = msg.UserEmail;
+                _ccy = msg.CCY;
+                _processBroker.Tell(new Messages.Events.OTGiftCardRedemptionStarted(msg.Gpid));
+                Context.System.Scheduler.ScheduleOnce(TimeSpan.FromSeconds(1), Self, new FraudCheckTimedOut(),
+                                                      _timeoutCancellation);
                 Become(WaitingForFraudCheck);
             });
         }
 
         private void WaitingForFraudCheck()
         {
+            //TODO: how to handle timeouts?
+            // use scheduler?
             Receive<Messages.Events.FraudCheckPassed>(passed =>
                 {
                     _passedFraudCheck = true;
-                    Context.ActorSelection("/user/redemptionController/redemptionProcessManager").Tell(new Messages.Events.OTGiftCardRedemptionStarted(passed.Gpid));
-                
-                    //_processManager.Tell(new Messages.Commands.CheckPointsBalance(passed.Gpid));
+                    _processBroker.Tell(new Messages.Commands.CheckPointsBalance(passed.Gpid));
                     Become(WaitingForPointsBalance);
                 });
 
+            Receive<FraudCheckTimedOut>(timedout =>
+                {
+                    //what do we want to do? retry?
+                });
         }
 
         private void WaitingForPointsBalance()
         {
-             
+            Receive<Messages.Events.PointsBalanceResult>(points =>
+                {
+                    if (points.PointsBalance >= _pointsRequired)
+                    {
+                        _processBroker.Tell(new Messages.Commands.OrderOtGiftCard(_gpid, _userEmail, _pointsRequired, _ccy)); //tell the broker to order the gift card
+                        Become(WaitingForGiftOrderConfirmation);
+                    }
+                    else
+                    {
+                        _processBroker.Tell(new InsufficientPoints
+                            {
+                                GPID = _gpid,
+                                PointsBalance = points.PointsBalance,
+                                PointsRequired = _pointsRequired,
+                            });
+                    }
+                });
+
+            //TODO: timeout
+        }
+
+        private void WaitingForGiftOrderConfirmation()
+        {
+            Receive<GiftService.OtGiftCardOrdered>(ordered =>
+                {
+                    //now we need to die; the order process has completed
+                });
+
+            Receive<GiftService.OtGiftCardOrderFailed>(failed =>
+                {
+                    //retry?
+                });
         }
     }
 }

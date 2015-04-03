@@ -42,23 +42,6 @@ namespace LoyaltyService
                 {
                 }
             }
-
-            public class DoFraudCheck : RedemptionBase
-            {
-                public DoFraudCheck(long gpid)
-                    : base(gpid)
-                {
-                }
-            }
-
-            public class CheckPointsBalance : RedemptionBase
-            {
-                public CheckPointsBalance(long gpid)
-                    : base(gpid)
-                {
-                }
-            }
-
         }
 
         public static class Events
@@ -71,48 +54,6 @@ namespace LoyaltyService
                     : base (gpid)
                 {
                     
-                }
-            }
-
-            public class FraudCheckPassed : RedemptionBase
-            {
-                public FraudCheckPassed(long gpid)
-                    : base (gpid)
-                {
-                    
-                }
-            }
-
-            public class FraudCheckPendingManualReview : RedemptionBase
-            {
-                public string FraudCheckReason { get; private set; }
-
-                public FraudCheckPendingManualReview(long gpid, string fraudCheckReason)
-                    : base (gpid)
-                {
-                    FraudCheckReason = fraudCheckReason;
-                }
-            }
-
-            public class FraudCheckFailed : RedemptionBase
-            {
-                public string FraudCheckReason { get; private set; }
-
-                public FraudCheckFailed(long gpid, string fraudCheckReason)
-                    : base (gpid)
-                {
-                    FraudCheckReason = fraudCheckReason;
-                }
-            }
-
-            public class PointsBalanceResult : RedemptionBase
-            {
-                public int PointsBalance { get; private set; }
-
-                public PointsBalanceResult(long gpid, int balance)
-                    : base (gpid)
-                {
-                    PointsBalance = balance;
                 }
             }
         }

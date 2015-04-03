@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Akka.Actor;
+using LoyaltyService.FraudDetection;
 
 namespace LoyaltyService
 {
@@ -22,7 +23,7 @@ namespace LoyaltyService
 			    {
 			        var redemptionId = Guid.NewGuid();
 			        var reference = Context.ActorOf(Props.Create(() => 
-                        new RedemptionProcessManager(redemptionId, _siftService, _pointsService, _giftService)), 
+                        new RedemptionProcessBroker(redemptionId, _siftService, _pointsService, _giftService)), 
                         "pm-" + redemptionId.ToString());
                     _redemptions.Add(redemptionId, reference); //we probably dont have to keep a list of actorrefs like this
                     //can we use ActorSelection or something here?
@@ -31,7 +32,7 @@ namespace LoyaltyService
 
         protected override void PreStart()
         {
-            _siftService = Context.ActorOf(Props.Create<SiftService>());
+            _siftService = Context.ActorOf(Props.Create<SiftServiceActor>());
             _pointsService = Context.ActorOf(Props.Create<PointsService>());
             _giftService = Context.ActorOf(Props.Create<GiftService>());
         }
