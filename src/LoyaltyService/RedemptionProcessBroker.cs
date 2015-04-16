@@ -39,7 +39,7 @@ namespace LoyaltyService
 
 	    private void HandleRedemptionStarted(object message)
 	    {
-            //_siftService.Tell(new Messages.Commands.DoFraudCheck(started.Gpid), Self);
+            //_siftService.Tell(new Messages.Commands.PerformFraudCheck(started.Gpid), Self);
             Unbecome();
 	    }
 

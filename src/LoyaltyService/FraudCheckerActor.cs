@@ -1,6 +1,8 @@
 ﻿using System;
 using Akka.Actor;
 using LoyaltyService.FraudDetection;
+using LoyaltyService.FraudDetection.Messages;
+using LoyaltyService.User;
 
 namespace LoyaltyService
 {
@@ -20,6 +22,17 @@ namespace LoyaltyService
             }
         }
 
+        public class DoFraudCheck : Messages.RedemptionBase
+        {
+            public Guid RedemptionId { get; set; }
+
+            public DoFraudCheck(long gpid, Guid redemptionId) 
+                : base(gpid)
+            {
+                RedemptionId = redemptionId;
+            }
+        }
+
         public class MailingAddress
         {
             public string Street1 { get; set; }
@@ -34,41 +47,21 @@ namespace LoyaltyService
             }
         }
 
-
-        public class FraudCheckPassed : Messages.RedemptionBase
-        {
-            public FraudCheckPassed(long gpid) : base(gpid)
-            {
-            }
-        }
-
-        public class FraudCheckFailed : Messages.RedemptionBase
-        {
-            public FraudCheckFailed(long gpid) : base(gpid)
-            {
-            }
-        }
-
-        public class FraudCheckPendingManualReview : Messages.RedemptionBase
-        {
-            public FraudCheckPendingManualReview(long gpid) : base(gpid)
-            {
-            }
-        }
-
         # endregion
 
         private readonly ActorRef _userService;
-        private ActorRef _processBroker;
+        private readonly ActorRef _processBroker;
+        private readonly ActorRef _siftService;
 
-        public FraudCheckerActor(ActorRef userService, ActorRef processBroker)
+        public FraudCheckerActor(ActorRef userService, ActorRef processBroker, ActorRef siftService)
         {
             _userService = userService;
             _processBroker = processBroker;
+            _siftService = siftService;
 
-            Receive<SiftServiceActor.DoFraudCheck>(msg =>
+            Receive<DoFraudCheck>(msg =>
                 {
-                    _userService.Tell(new UserService.GetUserInfo(msg.Gpid));
+                    _userService.Tell(new UserServiceActor.GetUserInfo(msg.Gpid, msg.RedemptionId));
                     Become(HandleUserInfoResponse);
                 });
         }
@@ -76,11 +69,21 @@ namespace LoyaltyService
         private void HandleUserInfoResponse()
         {
             //aggregate user data in here
-            Receive<UserService.UserInfoResponse>(response => _processBroker.Tell(new AggregatedUserData(response.Gpid)
+            Receive<UserServiceActor.UserInfoResponse>(userInfo =>
                 {
-                    EmailAddress = response.EmailAddress, 
-                    RedemptionId = response.RedemptionId
-                }));
+                    _siftService.Tell(new SiftServiceActor.CheckRequestForFraud(
+                        userInfo.RedemptionId, userInfo.Gpid,
+                        ));
+                });
+        }
+
+        private void HandleSiftResponse()
+        {
+            Receive<UserServiceActor.UserInfoResponse>(response => _processBroker.Tell(new AggregatedUserData(response.Gpid)
+            {
+                EmailAddress = response.EmailAddress,
+                RedemptionId = response.RedemptionId
+            }));
         }
     }
 }

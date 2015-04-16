@@ -50,14 +50,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FraudCheckerActor.cs" />
+    <Compile Include="FraudDetection\Messages\OTUserStatus.cs" />
+    <Compile Include="FraudDetection\Messages\OTUserType.cs" />
+    <Compile Include="FraudDetection\Messages\ReservationsSummary.cs" />
     <Compile Include="FraudDetection\Messages\SiftAddress.cs" />
     <Compile Include="FraudDetection\Messages\SiftBaseResponse.cs" />
     <Compile Include="FraudDetection\Messages\SiftCreateOrder.cs" />
     <Compile Include="FraudDetection\Messages\SiftOrderResponse.cs" />
     <Compile Include="FraudDetection\Messages\SiftScoreResponse.cs" />
+    <Compile Include="FraudDetection\Messages\UserInfo.cs" />
     <Compile Include="FraudDetection\SiftException.cs" />
     <Compile Include="FraudDetection\SiftService.cs" />
     <Compile Include="FraudDetection\SiftServiceActor.cs" />
+    <Compile Include="Gift.cs" />
     <Compile Include="GiftService.cs" />
     <Compile Include="Messages.cs" />
     <Compile Include="PointsService.cs" />
@@ -67,7 +72,10 @@
     <Compile Include="RedemptionController.cs" />
     <Compile Include="RedemptionProcessState.cs" />
     <Compile Include="TMSService.cs" />
-    <Compile Include="UserService.cs" />
+    <Compile Include="User\UserInfoResponse.cs" />
+    <Compile Include="User\UserService.cs" />
+    <Compile Include="User\UserServiceActor.cs" />
+    <Compile Include="User\UserTransactionsResponse.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

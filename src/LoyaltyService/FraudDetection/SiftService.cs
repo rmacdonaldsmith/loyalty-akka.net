@@ -1,7 +1,10 @@
 ﻿using System;
+using System.IO;
 using LoyaltyService.FraudDetection.Messages;
+using Newtonsoft.Json;
 using RestSharp;
 using System.Net;
+using RestSharp.Serializers;
 
 namespace LoyaltyService.FraudDetection
 {
@@ -16,7 +19,7 @@ namespace LoyaltyService.FraudDetection
 		    _apiKey = siftApiKey;
 		}
 
-		public void SendOrderInformation(UserInfo userInfo, ReservationsSummary reservations, Commands.CheckRequestForFraud requestOrder)
+		public void SendOrderInformation(UserInfo userInfo, ReservationsSummary reservations, SiftServiceActor.CheckRequestForFraud requestOrder)
 		{
 			var createOrderRequest = new SiftCreateOrder (_apiKey, requestOrder.GPID.ToString(), requestOrder.SessionId){
 				OrderId = requestOrder.RedemptionId.ToString(),
@@ -51,7 +54,7 @@ namespace LoyaltyService.FraudDetection
 
 			var request = new RestRequest ("/v203/events", Method.POST) {
 					RequestFormat = DataFormat.Json,
-					JsonSerializer = new Utilities.RestSharpJsonSerializer ()
+					JsonSerializer = new RestSharpJsonSerializer ()
 				}
 				.AddBody (createOrderRequest);
 
@@ -106,5 +109,45 @@ namespace LoyaltyService.FraudDetection
 			exception.Data.Add ("restsharp.errorMessage", response.ErrorMessage);
 			exception.Data.Add ("restsharp.errorException", response.ErrorException);
 		}
+
+        public class RestSharpJsonSerializer : ISerializer
+        {
+            private readonly Newtonsoft.Json.JsonSerializer _serializer;
+
+            public RestSharpJsonSerializer()
+            {
+                ContentType = "application/json";
+                _serializer = new Newtonsoft.Json.JsonSerializer
+                {
+                    MissingMemberHandling = MissingMemberHandling.Ignore,
+                    NullValueHandling = NullValueHandling.Include,
+                    DefaultValueHandling = DefaultValueHandling.Include
+                };
+            }
+
+            public string Serialize(object obj)
+            {
+                using (var stringWriter = new StringWriter())
+                {
+                    using (var jsonWriter = new JsonTextWriter(stringWriter))
+                    {
+                        jsonWriter.Formatting = Formatting.Indented;
+                        jsonWriter.QuoteChar = '"';
+
+                        _serializer.Serialize(jsonWriter, obj);
+                        var result = stringWriter.ToString();
+                        return result;
+                    }
+                }
+            }
+
+            public string RootElement { get; set; }
+
+            public string Namespace { get; set; }
+
+            public string DateFormat { get; set; }
+
+            public string ContentType { get; set; }
+        }
 	}
 }

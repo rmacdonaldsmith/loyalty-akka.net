@@ -1,4 +1,6 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
+using LoyaltyService.FraudDetection.Messages;
 using RestSharp;
 
 namespace LoyaltyService.FraudDetection
@@ -6,19 +8,37 @@ namespace LoyaltyService.FraudDetection
     public class SiftServiceActor : ReceiveActor
     {
         private readonly SiftService _siftProxy;
-        private readonly IRestClient _restClient;
-        private readonly ActorRef _processBroker;
+        private readonly ActorRef _fraudCheckActor;
 
-        public SiftServiceActor(SiftService siftProxy)
-        {
-            _siftProxy = siftProxy;
-        }
+        # region Messages
 
-        public class DoFraudCheck : LoyaltyService.Messages.RedemptionBase
+        public class SubmitFraudCheck : LoyaltyService.Messages.RedemptionBase
         {
-            public DoFraudCheck(long gpid)
+            public SubmitFraudCheck(long gpid)
                 : base(gpid)
             {
+            }
+        }
+
+        public class CheckRequestForFraud : LoyaltyService.Messages.RedemptionBase
+        {
+            public Guid RedemptionId { get; set; }
+            public long GPID { get; set; }
+            public string SessionId { get; set; }
+            public string Email { get; set; }
+            public int PointsToRedeem { get; set; }
+            public UserInfo UserInfo { get; set; }
+            public Gift Gift { get; set; }
+
+            public CheckRequestForFraud(Guid redemptionId, long gpid, string email, int pointsToRedeem, UserInfo userInfo, Gift gift) 
+                : base(gpid)
+            {
+                RedemptionId = redemptionId;
+                GPID = gpid;
+                Email = email;
+                PointsToRedeem = pointsToRedeem;
+                UserInfo = userInfo;
+                Gift = gift;
             }
         }
 
@@ -53,14 +73,16 @@ namespace LoyaltyService.FraudDetection
             }
         }
 
-        public SiftServiceActor(IRestClient restClient, ActorRef processBroker)
-        {
-            _restClient = restClient;
-            _processBroker = processBroker;
+        # endregion
 
-            Receive<DoFraudCheck>(msg =>
+        public SiftServiceActor(ActorRef fraudCheckActor, SiftService siftProxy)
+        {
+            _fraudCheckActor = fraudCheckActor;
+            _siftProxy = siftProxy;
+
+            Receive<SubmitFraudCheck>(msg =>
                 {
-                    
+                    _siftProxy.SendOrderInformation();
                 });
         }
     }
