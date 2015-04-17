@@ -1,6 +1,7 @@
 ﻿using System;
+using LoyaltyService.FraudDetection.Messages;
 
-namespace LoyaltyService.FraudDetection.Messages
+namespace LoyaltyService.User
 {
 	public class UserInfo
 	{

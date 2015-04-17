@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using LoyaltyService.FraudDetection.Messages;
+using LoyaltyService.User;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Net;

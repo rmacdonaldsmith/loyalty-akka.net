@@ -58,7 +58,7 @@
     <Compile Include="FraudDetection\Messages\SiftCreateOrder.cs" />
     <Compile Include="FraudDetection\Messages\SiftOrderResponse.cs" />
     <Compile Include="FraudDetection\Messages\SiftScoreResponse.cs" />
-    <Compile Include="FraudDetection\Messages\UserInfo.cs" />
+    <Compile Include="User\UserInfo.cs" />
     <Compile Include="FraudDetection\SiftException.cs" />
     <Compile Include="FraudDetection\SiftService.cs" />
     <Compile Include="FraudDetection\SiftServiceActor.cs" />
