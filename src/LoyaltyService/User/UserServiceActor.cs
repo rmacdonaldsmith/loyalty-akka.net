@@ -1,7 +1,6 @@
 ﻿using System;
 using Akka.Actor;
 using LoyaltyService.FraudDetection.Messages;
-using RestSharp;
 
 namespace LoyaltyService.User
 {
