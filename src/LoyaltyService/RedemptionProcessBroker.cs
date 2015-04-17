@@ -1,5 +1,6 @@
 ﻿using System;
 using Akka.Actor;
+using LoyaltyService.FraudDetection;
 
 
 namespace LoyaltyService
@@ -23,17 +24,16 @@ namespace LoyaltyService
 
 		    Receive<Messages.Commands.StartOTGiftCardRedemption>(msg => _redemptionStateActor.Tell(msg));
 
-	        Receive<FraudCheckerActor.FraudCheckPassed>(msg => _redemptionStateActor.Tell(msg));
+	        Receive<SiftServiceActor.FraudCheckPassed>(msg => _redemptionStateActor.Tell(msg));
 
-            Receive<FraudCheckerActor.FraudCheckFailed>(msg => _redemptionStateActor.Tell(msg));
+            Receive<SiftServiceActor.FraudCheckFailed>(msg => _redemptionStateActor.Tell(msg));
 
-            Receive<FraudCheckerActor.FraudCheckPendingManualReview>(msg => _redemptionStateActor.Tell(msg));
+            Receive<SiftServiceActor.FraudCheckPendingManualReview>(msg => _redemptionStateActor.Tell(msg));
 		}
 
         protected override void PreStart()
         {
-            _redemptionStateActor = Context.ActorOf(Props.Create<RedemptionProcessState>(_redemptionId), "RedemptionStateActor");
-            _redemptionStateActor = Context.ActorOf(Props.Create(() => new RedemptionProcessState()),
+            _redemptionStateActor = Context.ActorOf(Props.Create(() => new RedemptionProcessState(Self)),
                                                     "RedemptionStateActor");
         }
 

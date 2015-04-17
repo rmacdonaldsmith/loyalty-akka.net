@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Akka.Actor;
+using LoyaltyService.FraudDetection;
 
 namespace LoyaltyService
 {
@@ -51,6 +52,11 @@ namespace LoyaltyService
             StartRedemptionProcess();
         }
 
+        public RedemptionProcessState()
+        {
+            //required for testkit
+        }
+
         private void StartRedemptionProcess()
         {
             Receive<Messages.Commands.StartOTGiftCardRedemption>(msg =>
@@ -71,10 +77,10 @@ namespace LoyaltyService
         {
             //TODO: how to handle timeouts?
             // use scheduler?
-            Receive<Messages.Events.FraudCheckPassed>(passed =>
+            Receive<SiftServiceActor.FraudCheckPassed>(passed =>
                 {
                     _passedFraudCheck = true;
-                    _processBroker.Tell(new Messages.Commands.CheckPointsBalance(passed.Gpid));
+                    _processBroker.Tell(new PointsService.CheckPointsBalance(passed.Gpid));
                     Become(WaitingForPointsBalance);
                 });
 
@@ -86,11 +92,11 @@ namespace LoyaltyService
 
         private void WaitingForPointsBalance()
         {
-            Receive<Messages.Events.PointsBalanceResult>(points =>
+            Receive<PointsService.PointsBalanceResult>(points =>
                 {
                     if (points.PointsBalance >= _pointsRequired)
                     {
-                        _processBroker.Tell(new Messages.Commands.OrderOtGiftCard(_gpid, _userEmail, _pointsRequired, _ccy)); //tell the broker to order the gift card
+                        _processBroker.Tell(new GiftService.OrderOtGiftCard(_gpid, _userEmail, _pointsRequired, _ccy)); //tell the broker to order the gift card
                         Become(WaitingForGiftOrderConfirmation);
                     }
                     else

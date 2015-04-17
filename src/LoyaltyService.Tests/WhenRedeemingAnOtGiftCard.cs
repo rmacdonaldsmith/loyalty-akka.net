@@ -15,7 +15,7 @@ namespace LoyaltyService.Tests
 
         public void Initsystem()
         {
-            _system = 
+            
         }
     }
 }

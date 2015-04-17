@@ -10,40 +10,20 @@ namespace LoyaltyService
     {
         # region Messages
 
-        public class AggregatedUserData : Messages.RedemptionBase
-        {
-            public Guid RedemptionId { get; set; }
-            public string EmailAddress { get; set; }
-            public MailingAddress Address { get; set; }
-
-            public AggregatedUserData(long gpid) 
-                : base(gpid)
-            {
-            }
-        }
-
         public class DoFraudCheck : Messages.RedemptionBase
         {
             public Guid RedemptionId { get; set; }
+            public string EmailAddress { get; set; }
+            public int PointsTpRedeem { get; set; }
+            public Gift Gift { get; set; }
 
-            public DoFraudCheck(long gpid, Guid redemptionId) 
+            public DoFraudCheck(long gpid, Guid redemptionId, string emailAddress, int pointsTpRedeem, Gift gift) 
                 : base(gpid)
             {
                 RedemptionId = redemptionId;
-            }
-        }
-
-        public class MailingAddress
-        {
-            public string Street1 { get; set; }
-            public string Street2 { get; set; }
-            public string City { get; set; }
-            public string State { get; set; }
-            public string Zip { get; set; }
-
-            public static MailingAddress NoAddress()
-            {
-                return new MailingAddress();
+                EmailAddress = emailAddress;
+                PointsTpRedeem = pointsTpRedeem;
+                Gift = gift;
             }
         }
 
@@ -52,6 +32,7 @@ namespace LoyaltyService
         private readonly ActorRef _userService;
         private readonly ActorRef _processBroker;
         private readonly ActorRef _siftService;
+        private DoFraudCheck _doFraudCheck;
 
         public FraudCheckerActor(ActorRef userService, ActorRef processBroker, ActorRef siftService)
         {
@@ -61,6 +42,7 @@ namespace LoyaltyService
 
             Receive<DoFraudCheck>(msg =>
                 {
+                    _doFraudCheck = msg;
                     _userService.Tell(new UserServiceActor.GetUserInfo(msg.Gpid, msg.RedemptionId));
                     Become(HandleUserInfoResponse);
                 });
@@ -69,21 +51,24 @@ namespace LoyaltyService
         private void HandleUserInfoResponse()
         {
             //aggregate user data in here
-            Receive<UserServiceActor.UserInfoResponse>(userInfo =>
-                {
-                    _siftService.Tell(new SiftServiceActor.CheckRequestForFraud(
-                        userInfo.RedemptionId, userInfo.Gpid,
-                        ));
-                });
+            Receive<UserServiceActor.UserInfoResponse>(userInfo => _siftService.Tell(
+                new SiftServiceActor.CheckRequestForFraud(
+                        userInfo.RedemptionId, 
+                        userInfo.Gpid, 
+                        _doFraudCheck.EmailAddress, 
+                        _doFraudCheck.PointsTpRedeem,
+                        userInfo.UserInfo,
+                        _doFraudCheck.Gift,
+                        userInfo.ReservationsSummary
+                    )
+                )
+            );
+            Become(HandleSiftResponse);
         }
 
         private void HandleSiftResponse()
         {
-            Receive<UserServiceActor.UserInfoResponse>(response => _processBroker.Tell(new AggregatedUserData(response.Gpid)
-            {
-                EmailAddress = response.EmailAddress,
-                RedemptionId = response.RedemptionId
-            }));
+
         }
     }
 }

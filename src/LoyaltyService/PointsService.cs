@@ -29,7 +29,7 @@ namespace LoyaltyService
 
         public PointsService()
         {
-            Receive<Messages.Commands.CheckPointsBalance>(msg => { });
+            Receive<CheckPointsBalance>(msg => { });
         }
     }
 }

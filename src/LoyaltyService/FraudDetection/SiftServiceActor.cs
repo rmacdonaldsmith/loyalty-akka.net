@@ -1,7 +1,6 @@
 ﻿using System;
 using Akka.Actor;
 using LoyaltyService.FraudDetection.Messages;
-using RestSharp;
 
 namespace LoyaltyService.FraudDetection
 {
@@ -29,8 +28,10 @@ namespace LoyaltyService.FraudDetection
             public int PointsToRedeem { get; set; }
             public UserInfo UserInfo { get; set; }
             public Gift Gift { get; set; }
+            public ReservationsSummary ReservationsSummary { get; set; }
 
-            public CheckRequestForFraud(Guid redemptionId, long gpid, string email, int pointsToRedeem, UserInfo userInfo, Gift gift) 
+            public CheckRequestForFraud(Guid redemptionId, long gpid, string email, int pointsToRedeem, 
+                UserInfo userInfo, Gift gift, ReservationsSummary reservationsSummary) 
                 : base(gpid)
             {
                 RedemptionId = redemptionId;
@@ -39,6 +40,7 @@ namespace LoyaltyService.FraudDetection
                 PointsToRedeem = pointsToRedeem;
                 UserInfo = userInfo;
                 Gift = gift;
+                ReservationsSummary = reservationsSummary;
             }
         }
 
@@ -80,10 +82,8 @@ namespace LoyaltyService.FraudDetection
             _fraudCheckActor = fraudCheckActor;
             _siftProxy = siftProxy;
 
-            Receive<SubmitFraudCheck>(msg =>
-                {
-                    _siftProxy.SendOrderInformation();
-                });
+            Receive<CheckRequestForFraud>(msg => 
+                _siftProxy.SendOrderInformation(msg.UserInfo, msg.ReservationsSummary, msg));
         }
     }
 }

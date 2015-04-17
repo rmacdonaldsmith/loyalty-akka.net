@@ -1,6 +1,6 @@
 ﻿namespace LoyaltyService.FraudDetection.Messages
 {
-	public class ReservationsSummary : IMessage
+	public class ReservationsSummary
 	{
 		public long NumberOfReservationsInLastMonth { get; set; }
 		public long NumberOfReservations { get; set; }

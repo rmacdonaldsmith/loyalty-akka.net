@@ -1,6 +1,7 @@
 ﻿using System;
 using Akka.Actor;
 using Akka.TestKit.Xunit;
+using LoyaltyService.FraudDetection;
 using Xunit;
 
 namespace LoyaltyService.Tests
@@ -11,7 +12,7 @@ namespace LoyaltyService.Tests
         public void Should_not_handle_messages_until_Start_is_received()
         {
             var pmStateActor = ActorOfAsTestActorRef<RedemptionProcessState>();
-            pmStateActor.Tell(new Messages.Events.FraudCheckPassed(123));
+            pmStateActor.Tell(new SiftServiceActor.FraudCheckPassed(123));
             ExpectNoMsg();
 
             pmStateActor.Tell(
