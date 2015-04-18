@@ -6,8 +6,8 @@ using LoyaltyService.FraudDetection;
 namespace LoyaltyService
 {
 	public class RedemptionProcessBroker : ReceiveActor
-	{
-	    private readonly Guid _redemptionId;
+    {
+        private readonly Guid _redemptionId;
 	    private ActorRef _redemptionStateActor;
 	    private readonly ActorRef _siftService;
 	    private readonly ActorRef _pointsService;
@@ -22,16 +22,17 @@ namespace LoyaltyService
 	        _pointsService = pointsService;
 	        _giftService = giftService;
 
-		    Receive<Messages.Commands.StartOTGiftCardRedemption>(msg => _redemptionStateActor.Tell(msg));
+		    Receive<RedemptionController.StartOTGiftCardRedemption>(msg => _redemptionStateActor.Tell(msg));
 
-	        Receive<SiftServiceActor.FraudCheckPassed>(msg => _redemptionStateActor.Tell(msg));
-
-            Receive<SiftServiceActor.FraudCheckFailed>(msg => _redemptionStateActor.Tell(msg));
-
-            Receive<SiftServiceActor.FraudCheckPendingManualReview>(msg => _redemptionStateActor.Tell(msg));
+            Become(HandleRedemptionStarted);
 		}
 
-        protected override void PreStart()
+	    public RedemptionProcessBroker()
+	    {
+	        //for testkit
+	    }
+
+	    protected override void PreStart()
         {
             _redemptionStateActor = Context.ActorOf(Props.Create(() => new RedemptionProcessState(Self)),
                                                     "RedemptionStateActor");
@@ -39,7 +40,6 @@ namespace LoyaltyService
 
 	    private void HandleRedemptionStarted(object message)
 	    {
-            //_siftService.Tell(new Messages.Commands.PerformFraudCheck(started.Gpid), Self);
             Unbecome();
 	    }
 
@@ -47,6 +47,6 @@ namespace LoyaltyService
         {
             return base.SupervisorStrategy();
         }
-	}
+    }
 }
 

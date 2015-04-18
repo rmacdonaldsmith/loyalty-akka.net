@@ -1,16 +1,14 @@
 ﻿using System;
 using Akka.Actor;
-using LoyaltyService.FraudDetection;
-using LoyaltyService.FraudDetection.Messages;
 using LoyaltyService.User;
 
-namespace LoyaltyService
+namespace LoyaltyService.FraudDetection
 {
     public class FraudCheckerActor : ReceiveActor
     {
         # region Messages
 
-        public class DoFraudCheck : Messages.RedemptionBase
+        public class DoFraudCheck : LoyaltyService.Messages.RedemptionBase
         {
             public Guid RedemptionId { get; set; }
             public string EmailAddress { get; set; }
@@ -34,11 +32,11 @@ namespace LoyaltyService
         private readonly ActorRef _siftService;
         private DoFraudCheck _doFraudCheck;
 
-        public FraudCheckerActor(ActorRef userService, ActorRef processBroker, ActorRef siftService)
+        public FraudCheckerActor(ActorRef processBroker, Props userServiceActorProps, Props siftServiceActorProps)
         {
-            _userService = userService;
             _processBroker = processBroker;
-            _siftService = siftService;
+            _userService = Context.ActorOf(userServiceActorProps);
+            _siftService = Context.ActorOf(siftServiceActorProps);
 
             Receive<DoFraudCheck>(msg =>
                 {
@@ -46,6 +44,11 @@ namespace LoyaltyService
                     _userService.Tell(new UserServiceActor.GetUserInfo(msg.Gpid, msg.RedemptionId));
                     Become(HandleUserInfoResponse);
                 });
+        }
+
+        public FraudCheckerActor()
+        {
+            //for testkit
         }
 
         private void HandleUserInfoResponse()

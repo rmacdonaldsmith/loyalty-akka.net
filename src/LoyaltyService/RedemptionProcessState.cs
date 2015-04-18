@@ -59,14 +59,14 @@ namespace LoyaltyService
 
         private void StartRedemptionProcess()
         {
-            Receive<Messages.Commands.StartOTGiftCardRedemption>(msg =>
+            Receive<RedemptionController.StartOTGiftCardRedemption>(msg =>
             {
                 _redemptionId = Guid.NewGuid();
                 _currentState = States.StartingRedemption;
                 _pointsRequired = msg.PointsAmount;
                 _userEmail = msg.UserEmail;
                 _ccy = msg.CCY;
-                _processBroker.Tell(new Messages.Events.OTGiftCardRedemptionStarted(msg.Gpid));
+                _processBroker.Tell(new RedemptionController.OTGiftCardRedemptionStarted(msg.Gpid));
                 Context.System.Scheduler.ScheduleOnce(TimeSpan.FromSeconds(1), Self, new FraudCheckTimedOut(),
                                                       _timeoutCancellation);
                 Become(WaitingForFraudCheck);

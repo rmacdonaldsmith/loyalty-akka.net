@@ -16,8 +16,8 @@ namespace LoyaltyService.Tests
             ExpectNoMsg();
 
             pmStateActor.Tell(
-                new Messages.Commands.StartOTGiftCardRedemption(1234, "USD", 1000, "user@address.com"));
-            ExpectMsg<Messages.Events.OTGiftCardRedemptionStarted>();
+                new RedemptionController.StartOTGiftCardRedemption(1234, "USD", 1000, "user@address.com"));
+            ExpectMsg<RedemptionController.OTGiftCardRedemptionStarted>();
         }
     }
 }
