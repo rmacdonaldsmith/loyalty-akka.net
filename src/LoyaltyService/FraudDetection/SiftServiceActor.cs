@@ -86,5 +86,10 @@ namespace LoyaltyService.FraudDetection
             Receive<CheckRequestForFraud>(msg => 
                 _siftProxy.SendOrderInformation(msg.UserInfo, msg.ReservationsSummary, msg));
         }
+
+        public SiftServiceActor()
+        {
+            //empty
+        }
     }
 }

@@ -53,5 +53,11 @@ namespace LoyaltyService.User
                     _fraudCheckerActor.Tell(new UserInfoResponse(getUserInfo.Gpid, getUserInfo.RedemptionId, userInfo, resos));
                 });
         }
+
+        public UserServiceActor()
+        {
+            //empty
+        }
+
     }
 }

@@ -14,19 +14,21 @@ namespace LoyaltyService.Tests
 {
     public class FraudCheckerTests : TestKit
     {
-        private ActorRef _fraudChecker;
-        private IRestClient _userRestClient;
-        private IRestClient _siftRestClient;
-        private UserService _userService;
-        private SiftService _siftService;
-        private Guid _redemptionId = Guid.NewGuid();
-        private long _gpid = 1234;
-        private string _ccy = "USD";
-        private int _pointsToRedeem = 1000;
-        private string _emailAddress = "user@domain.com";
+        private readonly ActorRef _fraudChecker;
+        private readonly IRestClient _userRestClient;
+        private readonly IRestClient _siftRestClient;
+        private readonly UserService _userService;
+        private readonly SiftService _siftService;
+        private readonly Guid _redemptionId = Guid.NewGuid();
+        private const long Gpid = 1234;
+        private const string Ccy = "USD";
+        private const int PointsToRedeem = 1000;
+        private const string EmailAddress = "user@domain.com";
 
-        public FraudCheckerTests()
+        public FraudCheckerTests(IRestClient userRestClient, IRestClient siftRestClient)
         {
+            _userRestClient = userRestClient;
+            _siftRestClient = siftRestClient;
             _userService = new UserService(_userRestClient);
             _siftService = new SiftService(_siftRestClient, "fake-api-key");
             var userServiceActorProps = Props.Create(() => new UserServiceActor(_fraudChecker, _userService));
@@ -39,7 +41,7 @@ namespace LoyaltyService.Tests
         [Fact]
         public void When_performing_the_fraud_check()
         {
-            _fraudChecker.Tell(new FraudCheckerActor.DoFraudCheck(_gpid, _redemptionId, _emailAddress, _pointsToRedeem, new Gift(_pointsToRedeem, _ccy)));
+            _fraudChecker.Tell(new FraudCheckerActor.DoFraudCheck(Gpid, _redemptionId, EmailAddress, PointsToRedeem, new Gift(PointsToRedeem, Ccy)));
 
             ExpectMsg<SiftServiceActor.FraudCheckPassed>();
         }
