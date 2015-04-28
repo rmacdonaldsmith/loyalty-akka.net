@@ -7,9 +7,6 @@ namespace LoyaltyService.FraudDetection
 {
     public class SiftServiceActor : ReceiveActor
     {
-        private readonly SiftService _siftProxy;
-        private readonly ActorRef _fraudCheckActor;
-
         # region Messages
 
         public class SubmitFraudCheck : LoyaltyService.Messages.RedemptionBase
@@ -78,18 +75,34 @@ namespace LoyaltyService.FraudDetection
 
         # endregion
 
+        private readonly SiftService _siftProxy;
+        private readonly ActorRef _fraudCheckActor;
+        private long _gpid;
+
         public SiftServiceActor(ActorRef fraudCheckActor, SiftService siftProxy)
         {
             _fraudCheckActor = fraudCheckActor;
             _siftProxy = siftProxy;
 
-            Receive<CheckRequestForFraud>(msg => 
-                _siftProxy.SendOrderInformation(msg.UserInfo, msg.ReservationsSummary, msg));
+
+            Receive<CheckRequestForFraud>(msg =>
+                {
+                    _gpid = msg.GPID;
+                    _siftProxy.SendOrderInformation(msg.UserInfo,
+                                                    msg.ReservationsSummary, msg);
+                });
+
+            //set a timeout for a few seconds and then go check if Sift has processed the request
+            SetReceiveTimeout(TimeSpan.FromSeconds(3));
+
+            Receive<ReceiveTimeout>(timeout =>
+                {
+                    var siftScore = _siftProxy.GetUserScore(_gpid);
+                    _fraudCheckActor.Tell(siftScore);
+                });
+
+            
         }
 
-        public SiftServiceActor()
-        {
-            //empty
-        }
     }
 }

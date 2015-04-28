@@ -11,11 +11,13 @@ namespace LoyaltyService.User
         public class GetUserInfo : Messages.RedemptionBase
         {
             public Guid RedemptionId { get; set; }
+            public ActorRef FraudCheckerActor { get; set; }
 
-            public GetUserInfo(long gpid, Guid redemptionId) 
+            public GetUserInfo(long gpid, Guid redemptionId, ActorRef fraudCheckerActor) 
                 : base(gpid)
             {
                 RedemptionId = redemptionId;
+                FraudCheckerActor = fraudCheckerActor;
             }
         }
 
@@ -40,9 +42,8 @@ namespace LoyaltyService.User
         private readonly UserService _userService;
         private readonly ActorRef _fraudCheckerActor;
 
-        public UserServiceActor(ActorRef fraudCheckerActor, UserService userService)
+        public UserServiceActor(UserService userService)
         {
-            _fraudCheckerActor = fraudCheckerActor;
             _userService = userService;
 
             Receive<GetUserInfo>(getUserInfo =>
@@ -50,13 +51,8 @@ namespace LoyaltyService.User
                     var userInfo = _userService.GetUserInfo(getUserInfo.Gpid);
                     var resos = _userService.GetReservationsSummary(getUserInfo.Gpid);
 
-                    _fraudCheckerActor.Tell(new UserInfoResponse(getUserInfo.Gpid, getUserInfo.RedemptionId, userInfo, resos));
+                    getUserInfo.FraudCheckerActor.Tell(new UserInfoResponse(getUserInfo.Gpid, getUserInfo.RedemptionId, userInfo, resos));
                 });
-        }
-
-        public UserServiceActor()
-        {
-            //empty
         }
 
     }

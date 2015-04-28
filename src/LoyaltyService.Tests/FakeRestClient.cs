@@ -2,30 +2,42 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using LoyaltyService.User;
 using RestSharp;
 
 namespace LoyaltyService.Tests
 {
 	public class FakeRestClient : IRestClient
 	{
-		private Action<IRestRequest, Action<IRestResponse, RestRequestAsyncHandle>> _requestHandler;
+		private Action<IRestRequest, Action<IRestResponse, RestRequestAsyncHandle>> _asyncRequestHandler;
+	    private Func<IRestRequest, IRestResponse> _requestHandler;
 
-		public void SetRequestHandler (Action<IRestRequest, Action<IRestResponse, RestRequestAsyncHandle>> requestHandler)
+		public void SetAsyncRequestHandler (Action<IRestRequest, Action<IRestResponse, RestRequestAsyncHandle>> requestHandler)
 		{
-			_requestHandler = requestHandler;
+			_asyncRequestHandler = requestHandler;
 		}
 
-		public FakeRestClient(Action<IRestRequest, Action<IRestResponse, RestRequestAsyncHandle>> requestHandler)
+	    public void SetRequestHandler(Func<IRestRequest, IRestResponse> requestHandler)
+	    {
+	        _requestHandler = requestHandler;
+	    }
+
+	    public FakeRestClient(Action<IRestRequest, Action<IRestResponse, RestRequestAsyncHandle>> asyncRequestHandler)
 		{
-			_requestHandler = requestHandler;
+			_asyncRequestHandler = asyncRequestHandler;
 		}
+
+	    public FakeRestClient(Func<IRestRequest, IRestResponse> requestHander)
+	    {
+	        _requestHandler = requestHander;
+	    }
 
 		public RestRequestAsyncHandle ExecuteAsync (IRestRequest request, Action<IRestResponse, RestRequestAsyncHandle> callback)
 		{
 			var handle = new RestRequestAsyncHandle ();
 
-			if (_requestHandler != null) {
-				_requestHandler (request, callback);
+			if (_asyncRequestHandler != null) {
+				_asyncRequestHandler (request, callback);
 				return handle;
 			}
 			
@@ -44,7 +56,8 @@ namespace LoyaltyService.Tests
 
 		public IRestResponse<T> Execute<T> (IRestRequest request) where T : new()
 		{
-			throw new NotImplementedException ();
+			//implement this
+		    return (IRestResponse<T>) _requestHandler(request);
 		}
 
 		public Uri BuildUri (IRestRequest request)

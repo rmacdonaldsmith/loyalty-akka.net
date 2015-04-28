@@ -32,16 +32,16 @@ namespace LoyaltyService.FraudDetection
         private readonly ActorRef _siftService;
         private DoFraudCheck _doFraudCheck;
 
-        public FraudCheckerActor(ActorRef processBroker, Props userServiceActorProps, Props siftServiceActorProps)
+        public FraudCheckerActor(ActorRef processBroker, ActorRef userServiceActor, ActorRef siftServiceActor)
         {
             _processBroker = processBroker;
-            _userService = Context.ActorOf(userServiceActorProps);
-            _siftService = Context.ActorOf(siftServiceActorProps);
+            _userService = userServiceActor;
+            _siftService = siftServiceActor;
 
             Receive<DoFraudCheck>(msg =>
                 {
                     _doFraudCheck = msg;
-                    _userService.Tell(new UserServiceActor.GetUserInfo(msg.Gpid, msg.RedemptionId));
+                    _userService.Tell(new UserServiceActor.GetUserInfo(msg.Gpid, msg.RedemptionId, Self));
                     Become(HandleUserInfoResponse);
                 });
         }
@@ -71,7 +71,12 @@ namespace LoyaltyService.FraudDetection
 
         private void HandleSiftResponse()
         {
-
+            Receive(new Predicate<object>(msg =>
+                                  msg is SiftServiceActor.FraudCheckFailed ||
+                                  msg is SiftServiceActor.FraudCheckPassed ||
+                                  msg is SiftServiceActor.FraudCheckPendingManualReview),
+                    msg => 
+                        _processBroker.Tell(msg));
         }
     }
 }
