@@ -123,7 +123,7 @@ namespace LoyaltyService.Tests
                     };
         }
 
-        protected void WithSuccessfulSiftScoreResponse()
+        protected void WithSuccessfulSiftScoreResponse(float score = 1)
         {
             this.SiftScoreResponse =
                 () => new RestResponse<SiftScoreResponse>
@@ -133,7 +133,7 @@ namespace LoyaltyService.Tests
                                 error_message = "OK",
                                 latest_label = new SiftScoreResponse.SiftLatestLabel(),
                                 reasons = new List<SiftScoreResponse.SiftScoreReason>(),
-                                score = 1,
+                                score = score,
                                 status = 0,
                                 user_id = "auserid",
                             },

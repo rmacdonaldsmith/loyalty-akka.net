@@ -75,18 +75,24 @@ namespace LoyaltyService
 
         private void WaitingForFraudCheck()
         {
-            //TODO: how to handle timeouts?
-            // use scheduler?
-            Receive<FraudCheckerActor.FraudCheckPassed>(passed =>
+            //TODO: handle timeouts with the scheduler
+            Receive<SiftServiceActor.SiftScore>(score =>
                 {
+                    if (score.Score < 50)
+                        _processBroker.Tell(new FraudCheckerActor.FraudCheckFailed(score.Gpid, "Score too low"));
+                    else if (score.Score < 70)
+                        _processBroker.Tell(new FraudCheckerActor.FraudCheckPendingManualReview(score.Gpid, "Score not quite high enough"));
+                    else
+                        _processBroker.Tell(new FraudCheckerActor.FraudCheckPassed(score.Gpid));
+                    
                     _passedFraudCheck = true;
-                    _processBroker.Tell(new PointsService.CheckPointsBalance(passed.Gpid));
+                    _processBroker.Tell(new PointsService.CheckPointsBalance(score.Gpid));
                     Become(WaitingForPointsBalance);
                 });
 
             Receive<FraudCheckTimedOut>(timedout =>
                 {
-                    //what do we want to do? retry?
+                    //what do we want to do? retry? incremental back off?
                 });
         }
 

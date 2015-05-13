@@ -105,13 +105,9 @@ namespace LoyaltyService.FraudDetection
                                                            )
                 );
 
-            //get the response from the sift service with the fraud score
-            Receive<SiftServiceActor.SiftScore>(score =>
-            {
-                //depending on the score, send a specific fraud check response message to the broker
-
-                _processBroker.Tell(new FraudCheckerActor.FraudCheckPassed(score.Gpid));
-            });
+            //get the response from the sift service with the fraud score, forward to the broker
+            //we will leave it to the process state actor to make decisions based on the score
+            Receive<SiftServiceActor.SiftScore>(score => _processBroker.Tell(score));
         }
     }
 }

@@ -8,7 +8,7 @@ namespace LoyaltyService.Tests
         public FraudCheckFails()
         {
             WithDefaultUserRegistrations();
-            WithSuccessfulSiftScoreResponse();
+            WithSuccessfulSiftScoreResponse(0.1f);
             WithSuccessfulUserInfoResponse();
             WithSuccessfullSiftOrder();
             InitializeFraudChecker();
@@ -19,7 +19,7 @@ namespace LoyaltyService.Tests
         {
             FraudChecker.Tell(new FraudCheckerActor.DoFraudCheck(Gpid, RedemptionId, EmailAddress, PointsToRedeem, new Gift(PointsToRedeem, Ccy)));
 
-            ExpectMsg<FraudCheckerActor.FraudCheckPassed>();
+            ExpectMsg<SiftServiceActor.SiftScore>(score => score.Score == 10);
         }
     }
 }
