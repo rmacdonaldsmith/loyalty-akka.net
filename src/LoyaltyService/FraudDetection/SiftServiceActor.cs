@@ -42,48 +42,25 @@ namespace LoyaltyService.FraudDetection
             }
         }
 
-        public class FraudCheckPassed : LoyaltyService.Messages.RedemptionBase
+        public class SiftScore : LoyaltyService.Messages.RedemptionBase
         {
-            public FraudCheckPassed(long gpid)
+            public int Score { get; private set; }
+
+            public SiftScore(long gpid, int score) 
                 : base(gpid)
             {
-
-            }
-        }
-
-        public class FraudCheckPendingManualReview : LoyaltyService.Messages.RedemptionBase
-        {
-            public string FraudCheckReason { get; private set; }
-
-            public FraudCheckPendingManualReview(long gpid, string fraudCheckReason)
-                : base(gpid)
-            {
-                FraudCheckReason = fraudCheckReason;
-            }
-        }
-
-        public class FraudCheckFailed : LoyaltyService.Messages.RedemptionBase
-        {
-            public string FraudCheckReason { get; private set; }
-
-            public FraudCheckFailed(long gpid, string fraudCheckReason)
-                : base(gpid)
-            {
-                FraudCheckReason = fraudCheckReason;
+                Score = score;
             }
         }
 
         # endregion
 
         private readonly SiftService _siftProxy;
-        private readonly ActorRef _fraudCheckActor;
         private long _gpid;
 
-        public SiftServiceActor(ActorRef fraudCheckActor, SiftService siftProxy)
+        public SiftServiceActor(SiftService siftProxy)
         {
-            _fraudCheckActor = fraudCheckActor;
             _siftProxy = siftProxy;
-
 
             Receive<CheckRequestForFraud>(msg =>
                 {
@@ -93,16 +70,17 @@ namespace LoyaltyService.FraudDetection
                 });
 
             //set a timeout for a few seconds and then go check if Sift has processed the request
-            SetReceiveTimeout(TimeSpan.FromSeconds(3));
+            //in real life this needs to be configurable and probably longer than 1 second!
+            SetReceiveTimeout(TimeSpan.FromSeconds(1));
 
             Receive<ReceiveTimeout>(timeout =>
                 {
                     var siftScore = _siftProxy.GetUserScore(_gpid);
-                    _fraudCheckActor.Tell(siftScore);
+                    var selection = Context.ActorSelection("/*/fraud-checker");
+                    selection.Tell(new SiftServiceActor.SiftScore(_gpid, siftScore));
                 });
 
             
         }
-
     }
 }

@@ -12,7 +12,7 @@ namespace LoyaltyService.Tests
         public void Should_not_handle_messages_until_Start_is_received()
         {
             var pmStateActor = ActorOfAsTestActorRef<RedemptionProcessState>();
-            pmStateActor.Tell(new SiftServiceActor.FraudCheckPassed(123));
+            pmStateActor.Tell(new FraudCheckerActor.FraudCheckPassed(123));
             ExpectNoMsg();
 
             pmStateActor.Tell(

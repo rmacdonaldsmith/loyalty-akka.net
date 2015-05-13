@@ -77,7 +77,7 @@ namespace LoyaltyService
         {
             //TODO: how to handle timeouts?
             // use scheduler?
-            Receive<SiftServiceActor.FraudCheckPassed>(passed =>
+            Receive<FraudCheckerActor.FraudCheckPassed>(passed =>
                 {
                     _passedFraudCheck = true;
                     _processBroker.Tell(new PointsService.CheckPointsBalance(passed.Gpid));

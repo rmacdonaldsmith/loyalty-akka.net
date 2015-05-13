@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using Akka.Actor;
 using Akka.TestKit.Xunit;
 using LoyaltyService.FraudDetection;
@@ -17,10 +14,10 @@ namespace LoyaltyService.Tests
     public class FraudCheckerTests : TestKit
     {
         private readonly ActorRef _fraudChecker;
-        private readonly IRestClient _userRestClient;
-        private readonly IRestClient _siftRestClient;
-        private readonly UserService _userService;
-        private readonly SiftService _siftService;
+        private IRestClient _userRestClient;
+        private IRestClient _siftRestClient;
+        private UserService _userService;
+        private SiftService _siftService;
         private readonly Guid _redemptionId = Guid.NewGuid();
         private const long Gpid = 1234;
         private const string Ccy = "USD";
@@ -29,22 +26,11 @@ namespace LoyaltyService.Tests
 
         public FraudCheckerTests()
         {
-            _userRestClient = new FakeRestClient(request => UserInfoResponse());
-            _userRestClient = new FakeRestClient(request =>
-                {
-                    if (request.Resource.Contains("/user/v1/users/"))
-                        return this.UserInfoResponse();
+            ConfigureUserService();
+            ConfigureFakeSiftService();
 
-                    if (request.Resource.Contains("/user/v2/users/"))
-                        return UserReservations();
-
-                    throw new Exception("Unexpected request");
-                });
-            _siftRestClient = new FakeRestClient(request => SiftResponse());
-            _userService = new UserService(_userRestClient);
-            _siftService = new SiftService(_siftRestClient, "fake-api-key");
             var userServiceActorProps = Props.Create(() => new UserServiceActor(_userService));
-            var siftServiceActorProps = Props.Create(() => new SiftServiceActor(_fraudChecker, _siftService));
+            var siftServiceActorProps = Props.Create(() => new SiftServiceActor(_siftService));
             var userServiceActorRef = ActorOf(userServiceActorProps);
             var siftServiceActorRef = ActorOf(siftServiceActorProps);
 
@@ -53,12 +39,44 @@ namespace LoyaltyService.Tests
             _fraudChecker = ActorOf(fraudCheckProps, "fraud-checker");
         }
 
-        [Fact(DisplayName = "When perfomring a fraud check")]
+        [Fact(DisplayName = "When the fraud check is successful")]
         public void When_performing_the_fraud_check()
         {
             _fraudChecker.Tell(new FraudCheckerActor.DoFraudCheck(Gpid, _redemptionId, EmailAddress, PointsToRedeem, new Gift(PointsToRedeem, Ccy)));
+            
+            ExpectMsg<FraudCheckerActor.FraudCheckPassed>();
+        }
 
-            ExpectMsg<SiftServiceActor.FraudCheckPassed>();
+        private void ConfigureUserService()
+        {
+            _userRestClient = new FakeRestClient(request =>
+            {
+                if (request.Resource.Contains("/user/v1/users/"))
+                    return this.UserInfoResponse();
+
+                if (request.Resource.Contains("/user/v2/users/"))
+                    return UserReservations();
+
+                throw new Exception("Unexpected request");
+            });
+
+            _userService = new UserService(_userRestClient);
+        }
+
+        private void ConfigureFakeSiftService()
+        {
+            _siftRestClient = new FakeRestClient(request =>
+                {
+                    if (request.Resource.Contains("/v203/events"))
+                        return this.SiftOrderResponse();
+
+                    if (request.Resource.Contains("/v203/score/"))
+                        return this.SiftScoreResponse();
+
+                    throw new Exception("Unexpected request");
+                });
+
+            _siftService = new SiftService(_siftRestClient, "fake-api-key");
         }
 
         private readonly Func<RestResponse<UserInfoResponse>> UserInfoResponse = () => new RestResponse<UserInfoResponse>
@@ -91,9 +109,9 @@ namespace LoyaltyService.Tests
                 ResponseStatus = ResponseStatus.Completed
             };
 
-        private readonly Func<RestResponse<SiftScoreResponse>> SiftResponse = () => new RestResponse<SiftScoreResponse>
+        private readonly Func<RestResponse<SiftOrderResponse>> SiftOrderResponse = () => new RestResponse<SiftOrderResponse>
             {
-                Data = new SiftScoreResponse
+                Data = new SiftOrderResponse
                     {
                         status = 0,
                         error_message = "OK",
@@ -104,6 +122,22 @@ namespace LoyaltyService.Tests
                 StatusCode = HttpStatusCode.OK,
                 ResponseStatus = ResponseStatus.Completed
             };
+
+        private readonly Func<RestResponse<SiftScoreResponse>> SiftScoreResponse =
+            () => new RestResponse<SiftScoreResponse>
+                {
+                    Data = new SiftScoreResponse
+                        {
+                            error_message = "OK",
+                            latest_label = new SiftScoreResponse.SiftLatestLabel(),
+                            reasons = new List<SiftScoreResponse.SiftScoreReason>(),
+                            score = 1,
+                            status = 0,
+                            user_id = "auserid",
+                        },
+                    StatusCode = HttpStatusCode.OK,
+                    ResponseStatus = ResponseStatus.Completed
+                };
 
         private readonly Func<RestResponse<UserTransactionsResponse>> UserReservations = () => new RestResponse<UserTransactionsResponse>
             {
