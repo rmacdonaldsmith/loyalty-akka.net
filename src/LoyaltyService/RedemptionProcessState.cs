@@ -42,7 +42,16 @@ namespace LoyaltyService
             public int PointsBalance { get; set; }
         }
 
+        public class GiftCardOrdered : Messages.RedemptionBase
+        {
+            public string ConfirmationNumber { get; set; }
 
+            public GiftCardOrdered(long gpid, string confirmationNumber) 
+                : base(gpid)
+            {
+                ConfirmationNumber = confirmationNumber;
+            }
+        }
 
         #endregion
 
@@ -66,7 +75,7 @@ namespace LoyaltyService
                 _pointsRequired = msg.PointsAmount;
                 _userEmail = msg.UserEmail;
                 _ccy = msg.CCY;
-                _processBroker.Tell(new RedemptionController.OTGiftCardRedemptionStarted(msg.Gpid));
+                _processBroker.Tell(new RedemptionController.OTGiftCardRedemptionStarted(msg.Gpid, msg.UserEmail, msg.PointsAmount, msg.CCY));
                 Context.System.Scheduler.ScheduleOnce(TimeSpan.FromSeconds(1), Self, new FraudCheckTimedOut(),
                                                       _timeoutCancellation);
                 Become(WaitingForFraudCheck);
@@ -85,7 +94,7 @@ namespace LoyaltyService
                     else
                         _processBroker.Tell(new FraudCheckerActor.FraudCheckPassed(score.Gpid));
                     
-                    _passedFraudCheck = true;
+                    _passedFraudCheck = true; //do we need to persist state like this?
                     _processBroker.Tell(new PointsService.CheckPointsBalance(score.Gpid));
                     Become(WaitingForPointsBalance);
                 });
@@ -121,15 +130,23 @@ namespace LoyaltyService
 
         private void WaitingForGiftOrderConfirmation()
         {
-            Receive<GiftService.OtGiftCardOrdered>(ordered =>
-                {
-                    //now we need to die; the order process has completed
-                });
+            Receive<GiftService.OtGiftCardOrdered>(
+                ordered => 
+                    _processBroker.Tell(new TmsService.NotifyUser(ordered.Gpid, _userEmail, "Confirmation number: " + ordered.ConfirmationNumber)));
 
             Receive<GiftService.OtGiftCardOrderFailed>(failed =>
                 {
                     //retry?
                 });
+        }
+
+        private void WaitingForTmsConfirmation()
+        {
+            //we are done - what else do we need to do here before we exit and die
+            //tell the RedemptionController that we completed so it can clean up
+            Receive<TmsService.UserNotified>(
+                notified =>
+                _processBroker.Tell(new RedemptionController.RedemptionCompleted(_gpid, _redemptionId)));
         }
     }
 }

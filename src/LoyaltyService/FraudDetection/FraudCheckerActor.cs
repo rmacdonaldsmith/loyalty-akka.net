@@ -63,6 +63,15 @@ namespace LoyaltyService.FraudDetection
         private readonly ActorRef _siftService;
         private DoFraudCheck _doFraudCheck;
 
+        /// <summary>
+        /// The fraud checker actor is its own mini-process manager, coordinating the process
+        /// of gettting user information and submitting it to the sift service. Hence, this actor
+        /// deals directly with the User service and Sift service, finally relaying the result
+        /// to the Process Broker (who forwards on to the Process State actor).
+        /// </summary>
+        /// <param name="processBroker"></param>
+        /// <param name="userServiceActor"></param>
+        /// <param name="siftServiceActor"></param>
         public FraudCheckerActor(ActorRef processBroker, ActorRef userServiceActor, ActorRef siftServiceActor)
         {
             _processBroker = processBroker;
@@ -75,11 +84,6 @@ namespace LoyaltyService.FraudDetection
                     _doFraudCheck = msg;
                     _userService.Tell(new UserServiceActor.GetUserInfo(msg.Gpid, msg.RedemptionId, Self));
                     Become(HandleUserServiceResponse);
-                });
-
-            ReceiveAny(m =>
-                {
-                    throw new Exception("Unexpected message was received");
                 });
         }
 
