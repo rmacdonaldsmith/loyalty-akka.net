@@ -63,12 +63,12 @@ namespace LoyaltyService
 
 	    # endregion
 
-		private readonly Dictionary<Guid, ActorRef> _redemptions = new Dictionary<Guid, ActorRef>();
-	    private ActorRef _siftService;
-	    private ActorRef _pointsService;
-	    private ActorRef _giftService;
-	    private ActorRef _fraudChecker;
-	    private ActorRef _notificationService;
+		private readonly Dictionary<Guid, IActorRef> _redemptions = new Dictionary<Guid, IActorRef>();
+	    private IActorRef _siftService;
+	    private IActorRef _pointsService;
+	    private IActorRef _giftService;
+	    private IActorRef _fraudChecker;
+	    private IActorRef _notificationService;
 
 	    public RedemptionController ()
 		{
@@ -111,9 +111,9 @@ namespace LoyaltyService
             return base.SupervisorStrategy();
         }
 
-	    public ReadOnlyDictionary<Guid, ActorRef> Redemptions
+	    public ReadOnlyDictionary<Guid, IActorRef> Redemptions
 	    {
-	        get { return new ReadOnlyDictionary<Guid, ActorRef>(_redemptions); }
+	        get { return new ReadOnlyDictionary<Guid, IActorRef>(_redemptions); }
 	    }
 	}
 }

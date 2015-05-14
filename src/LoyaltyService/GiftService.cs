@@ -7,7 +7,7 @@ namespace LoyaltyService
     public class GiftService : ReceiveActor
     {
         private readonly IRestClient _restClient;
-        private readonly ActorRef _processBroker;
+        private readonly IActorRef _processBroker;
 
         public class OrderOtGiftCard : Messages.RedemptionBase
         {
@@ -46,7 +46,7 @@ namespace LoyaltyService
             }
         }
 
-        public GiftService(IRestClient restClient, ActorRef processBroker)
+        public GiftService(IRestClient restClient, IActorRef processBroker)
         {
             _restClient = restClient;
             _processBroker = processBroker;

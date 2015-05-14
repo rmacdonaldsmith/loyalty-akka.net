@@ -1,4 +1,5 @@
-﻿using LoyaltyService.FraudDetection;
+﻿using Akka.Actor;
+using LoyaltyService.FraudDetection;
 using Xunit;
 
 namespace LoyaltyService.Tests

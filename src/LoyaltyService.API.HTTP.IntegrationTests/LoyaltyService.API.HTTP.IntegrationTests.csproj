@@ -49,9 +49,6 @@
     <Reference Include="NSubstitute">
       <HintPath>..\packages\NSubstitute.1.8.1.0\lib\net45\NSubstitute.dll</HintPath>
     </Reference>
-    <Reference Include="NEventStore">
-      <HintPath>..\packages\NEventStore.5.1.0\lib\net40\NEventStore.dll</HintPath>
-    </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>

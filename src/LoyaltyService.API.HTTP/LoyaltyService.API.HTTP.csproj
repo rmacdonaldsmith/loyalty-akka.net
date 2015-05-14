@@ -33,16 +33,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Akka, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Akka.1.0.0\lib\net45\Akka.dll</HintPath>
-    </Reference>
-    <Reference Include="Akka.DI.CastleWindsor">
-      <HintPath>..\packages\Akka.DI.CastleWindsor.1.0.0\lib\net45\Akka.DI.CastleWindsor.dll</HintPath>
-    </Reference>
-    <Reference Include="Akka.DI.Core">
-      <HintPath>..\packages\Akka.DI.Core.1.0.0\lib\net45\Akka.DI.Core.dll</HintPath>
-    </Reference>
     <Reference Include="Castle.Core">
       <HintPath>..\packages\Castle.Core.3.3.0\lib\net45\Castle.Core.dll</HintPath>
     </Reference>

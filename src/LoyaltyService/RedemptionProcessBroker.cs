@@ -8,17 +8,17 @@ namespace LoyaltyService
 	public class RedemptionProcessBroker : ReceiveActor
     {
         private readonly Guid _redemptionId;
-	    private readonly ActorRef _redemptionStateActor;
-	    private readonly ActorRef _fraudCheckActor;
-	    private readonly ActorRef _siftService;
-	    private readonly ActorRef _pointsService;
-	    private readonly ActorRef _giftService;
-	    private readonly ActorRef _notificationService;
-	    private readonly ActorRef _redemptionController;
+	    private readonly IActorRef _redemptionStateActor;
+	    private readonly IActorRef _fraudCheckActor;
+	    private readonly IActorRef _siftService;
+	    private readonly IActorRef _pointsService;
+	    private readonly IActorRef _giftService;
+	    private readonly IActorRef _notificationService;
+	    private readonly IActorRef _redemptionController;
 
         //pass in sift, points and gift services as they are totally stateless with respect to the redeption process; they dont care
         //about the current redmptionId
-	    public RedemptionProcessBroker (Guid redemptionId, ActorRef siftService, ActorRef pointsService, ActorRef giftService, ActorRef redemptionStateActor, ActorRef notificationService, ActorRef redemptionController)
+	    public RedemptionProcessBroker (Guid redemptionId, IActorRef siftService, IActorRef pointsService, IActorRef giftService, IActorRef redemptionStateActor, IActorRef notificationService, IActorRef redemptionController)
 	    {
 	        _redemptionId = redemptionId;
 	        _siftService = siftService;

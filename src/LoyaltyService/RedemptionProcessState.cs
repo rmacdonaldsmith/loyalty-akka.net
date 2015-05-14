@@ -18,7 +18,7 @@ namespace LoyaltyService
 
     public class RedemptionProcessState : ReceiveActor
     {
-        private readonly ActorRef _processBroker;
+        private readonly IActorRef _processBroker;
         private Guid _redemptionId;
         private long _gpid;
         private int _pointsRequired;
@@ -55,7 +55,7 @@ namespace LoyaltyService
 
         #endregion
 
-        public RedemptionProcessState(ActorRef processBroker)
+        public RedemptionProcessState(IActorRef processBroker)
         {
             _processBroker = processBroker;
             StartRedemptionProcess();

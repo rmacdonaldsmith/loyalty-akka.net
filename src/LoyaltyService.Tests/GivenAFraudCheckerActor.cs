@@ -12,7 +12,7 @@ namespace LoyaltyService.Tests
 {
     public abstract class GivenAFraudCheckerActor : TestKit
     {
-        protected ActorRef FraudChecker;
+        protected IActorRef FraudChecker;
         private IRestClient _userRestClient;
         private IRestClient _siftRestClient;
         private UserService _userService;

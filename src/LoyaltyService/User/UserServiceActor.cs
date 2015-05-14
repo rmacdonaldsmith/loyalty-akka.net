@@ -11,9 +11,9 @@ namespace LoyaltyService.User
         public class GetUserInfo : Messages.RedemptionBase
         {
             public Guid RedemptionId { get; set; }
-            public ActorRef FraudCheckerActor { get; set; }
+            public IActorRef FraudCheckerActor { get; set; }
 
-            public GetUserInfo(long gpid, Guid redemptionId, ActorRef fraudCheckerActor) 
+            public GetUserInfo(long gpid, Guid redemptionId, IActorRef fraudCheckerActor) 
                 : base(gpid)
             {
                 RedemptionId = redemptionId;
@@ -40,7 +40,7 @@ namespace LoyaltyService.User
 
 
         private readonly UserService _userService;
-        private readonly ActorRef _fraudCheckerActor;
+        private readonly IActorRef _fraudCheckerActor;
 
         public UserServiceActor(UserService userService)
         {

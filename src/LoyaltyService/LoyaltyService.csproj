@@ -28,22 +28,26 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Akka.TestKit">
-      <HintPath>..\packages\Akka.TestKit.0.8.0\lib\net45\Akka.TestKit.dll</HintPath>
+    <Reference Include="Akka, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Akka.1.0.1\lib\net45\Akka.dll</HintPath>
     </Reference>
-    <Reference Include="Akka.TestKit.Xunit">
-      <HintPath>..\packages\Akka.TestKit.Xunit.0.8.0\lib\net45\Akka.TestKit.Xunit.dll</HintPath>
+    <Reference Include="Akka.Persistence">
+      <HintPath>..\packages\Akka.Persistence.1.0.1-pre1504282013\lib\net45\Akka.Persistence.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.ProtocolBuffers">
+      <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.521\lib\net40\Google.ProtocolBuffers.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.ProtocolBuffers.Serialization">
+      <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.521\lib\net40\Google.ProtocolBuffers.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="RestSharp">
       <HintPath>..\LoyaltyService.API.HTTP.IntegrationTests\bin\Debug\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Akka">
-      <HintPath>..\packages\Akka.0.8.0\lib\net45\Akka.dll</HintPath>
-    </Reference>
     <Reference Include="xunit">
       <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
     </Reference>
@@ -79,6 +83,13 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="protos\google\protobuf\csharp_options.proto" />
+    <None Include="protos\google\protobuf\descriptor.proto" />
+    <None Include="protos\tutorial\addressbook.proto" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="CHANGES.txt" />
+    <Content Include="licenses\license.txt" />
+    <Content Include="licenses\protoc-license.txt" />
+  </ItemGroup>
 </Project>

@@ -58,9 +58,9 @@ namespace LoyaltyService.FraudDetection
 
         # endregion
 
-        private readonly ActorRef _userService;
-        private readonly ActorRef _processBroker;
-        private readonly ActorRef _siftService;
+        private readonly IActorRef _userService;
+        private readonly IActorRef _processBroker;
+        private readonly IActorRef _siftService;
         private DoFraudCheck _doFraudCheck;
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace LoyaltyService.FraudDetection
         /// <param name="processBroker"></param>
         /// <param name="userServiceActor"></param>
         /// <param name="siftServiceActor"></param>
-        public FraudCheckerActor(ActorRef processBroker, ActorRef userServiceActor, ActorRef siftServiceActor)
+        public FraudCheckerActor(IActorRef processBroker, IActorRef userServiceActor, IActorRef siftServiceActor)
         {
             _processBroker = processBroker;
             _userService = userServiceActor;
