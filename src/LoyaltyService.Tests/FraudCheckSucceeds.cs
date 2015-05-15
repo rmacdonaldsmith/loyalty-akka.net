@@ -18,9 +18,9 @@ namespace LoyaltyService.Tests
         [Fact(DisplayName = "When the fraud check is successful")]
         public void When_performing_the_fraud_check()
         {
-            FraudChecker.Tell(new FraudCheckerActor.DoFraudCheck(Gpid, RedemptionId, EmailAddress, PointsToRedeem, new Gift(PointsToRedeem, Ccy)));
+            FraudChecker.Tell(new Commands.DoFraudCheck(Gpid, RedemptionId, EmailAddress, PointsToRedeem, new Gift(PointsToRedeem, Ccy)));
             
-            ExpectMsg<SiftServiceActor.SiftScore>(score => score.Score == 100);
+            ExpectMsg<Events.SiftScore>(score => score.Score == 100);
         }
     }
 }

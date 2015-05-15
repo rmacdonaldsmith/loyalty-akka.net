@@ -14,55 +14,6 @@ namespace LoyaltyService
 	/// </summary>
 	public class RedemptionController : ReceiveActor
 	{
-        # region Messages
-
-	    public class StartOTGiftCardRedemption : Messages.RedemptionBase
-	    {
-	        public StartOTGiftCardRedemption(long gpid, string ccy, int pointsAmount, string userEmail)
-	            : base(gpid)
-	        {
-	            UserEmail = userEmail;
-	            PointsAmount = pointsAmount;
-	            CCY = ccy;
-	        }
-
-	        public string CCY { get; private set; }
-	        public int PointsAmount { get; private set; }
-	        public string UserEmail { get; private set; }
-	    }
-
-	    public class OTGiftCardRedemptionStarted : Messages.RedemptionBase
-	    {
-	        public Guid RedmeptionProcessId { get; private set; }
-
-	        public OTGiftCardRedemptionStarted(long gpid, string userEmail, int pointsAmount, string ccy)
-	            : base(gpid)
-	        {
-                UserEmail = userEmail;
-                PointsAmount = pointsAmount;
-                Ccy = ccy;
-	        }
-
-	        public string Ccy { get; set; }
-
-            public int PointsAmount { get; set; }
-
-            public string UserEmail { get; set; }
-	    }
-
-	    public class RedemptionCompleted : Messages.RedemptionBase
-	    {
-	        public Guid RedemptionProcessId { get; private set; }
-
-	        public RedemptionCompleted(long gpid, Guid redmeptionId) 
-                : base(gpid)
-	        {
-                RedemptionProcessId = redmeptionId;
-	        }
-	    }
-
-	    # endregion
-
 		private readonly Dictionary<Guid, IActorRef> _redemptions = new Dictionary<Guid, IActorRef>();
 	    private IActorRef _siftService;
 	    private IActorRef _pointsService;
@@ -72,10 +23,10 @@ namespace LoyaltyService
 
 	    public RedemptionController ()
 		{
-			Receive<StartOTGiftCardRedemption> (msg =>
+			Receive<Commands.StartOTGiftCardRedemption> (msg =>
 			    {
 			        var redemptionId = Guid.NewGuid();
-                    var redemptionStateActor = Context.ActorOf(Props.Create(() => new RedemptionProcessState(Self)),
+                    var redemptionStateActor = Context.ActorOf(Props.Create(() => new RedemptionProcessStateActor(Self)),
                                                     "redemption-state-actor");
 			        var broker = Context.ActorOf(Props.Create(() => 
                         new RedemptionProcessBroker(redemptionId, _siftService, _pointsService, _giftService, redemptionStateActor, _notificationService, Self)), 
@@ -84,7 +35,7 @@ namespace LoyaltyService
                     //can we use ActorSelection or something here?
 			    });
 
-	        Receive<RedemptionCompleted>(completed =>
+	        Receive<Events.RedemptionCompleted>(completed =>
 	            {
 	                if (_redemptions.ContainsKey(completed.RedemptionProcessId))
 	                    _redemptions.Remove(completed.RedemptionProcessId);

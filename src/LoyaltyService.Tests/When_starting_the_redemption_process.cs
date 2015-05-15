@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System;
+using Akka.Actor;
 using Akka.TestKit.Xunit;
 using Xunit;
 
@@ -8,6 +9,7 @@ namespace LoyaltyService.Tests
     {
         private IActorRef _controller;
         private long _gpid = 1234;
+        private Guid _redemptionId = Guid.NewGuid();
         private string _ccy = "USD";
         private int _pointsToRedeem = 1000;
         private string _emailAddress = "user@domain.com";
@@ -15,7 +17,7 @@ namespace LoyaltyService.Tests
         public When_starting_the_redemption_process()
         {
             _controller = ActorOf<RedemptionController>("controller");
-            _controller.Tell(new RedemptionController.StartOTGiftCardRedemption(_gpid, _ccy, _pointsToRedeem, _emailAddress));
+            _controller.Tell(new Commands.StartOTGiftCardRedemption(_gpid, _redemptionId, _ccy, _pointsToRedeem, _emailAddress));
 
         }
 

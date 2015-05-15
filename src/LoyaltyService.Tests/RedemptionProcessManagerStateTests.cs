@@ -1,7 +1,6 @@
 ﻿using System;
 using Akka.Actor;
 using Akka.TestKit.Xunit;
-using LoyaltyService.FraudDetection;
 using Xunit;
 
 namespace LoyaltyService.Tests
@@ -11,56 +10,56 @@ namespace LoyaltyService.Tests
         [Fact]
         public void Should_not_handle_messages_until_Start_is_received()
         {
-            var stateActorProps = Props.Create(() => new RedemptionProcessState(TestActor));
+            var stateActorProps = Props.Create(() => new RedemptionProcessStateActor(TestActor));
             var pmStateActor = ActorOf(stateActorProps, "state-process-manager");
-            pmStateActor.Tell(new FraudCheckerActor.FraudCheckPassed(123));
+            pmStateActor.Tell(new Events.FraudCheckPassed(123, Guid.NewGuid()));
             ExpectNoMsg();
 
             pmStateActor.Tell(
-                new RedemptionController.StartOTGiftCardRedemption(1234, "USD", 1000, "user@address.com"));
-            ExpectMsg<RedemptionController.OTGiftCardRedemptionStarted>();
+                new Commands.StartOTGiftCardRedemption(1234, Guid.NewGuid(), "USD", 1000, "user@address.com"));
+            ExpectMsg<Events.OTGiftCardRedemptionStarted>();
         }
 
         [Fact(DisplayName = "When the sift score is too low")]
         public void When_sift_score_is_too_low()
         {
-            var stateActorProps = Props.Create(() => new RedemptionProcessState(TestActor));
+            var stateActorProps = Props.Create(() => new RedemptionProcessStateActor(TestActor));
             var pmStateActor = ActorOf(stateActorProps, "state-process-manager");
             pmStateActor.Tell(
-                new RedemptionController.StartOTGiftCardRedemption(
-                    1234, "USD", 1000, "user@address.com"));
-            pmStateActor.Tell(new SiftServiceActor.SiftScore(1234, 10));
+                new Commands.StartOTGiftCardRedemption(
+                    1234, Guid.NewGuid(), "USD", 1000, "user@address.com"));
+            pmStateActor.Tell(new Events.SiftScore(1234, Guid.NewGuid(), 10));
 
-            ExpectMsg<RedemptionController.OTGiftCardRedemptionStarted>();
-            ExpectMsg<FraudCheckerActor.FraudCheckFailed>();
+            ExpectMsg<Events.OTGiftCardRedemptionStarted>();
+            ExpectMsg<Events.FraudCheckFailed>();
         }
 
         [Fact(DisplayName = "When the sift score is not quite high enough")]
         public void When_sift_score_is_not_high_enough()
         {
-            var stateActorProps = Props.Create(() => new RedemptionProcessState(TestActor));
+            var stateActorProps = Props.Create(() => new RedemptionProcessStateActor(TestActor));
             var pmStateActor = ActorOf(stateActorProps, "state-process-manager");
             pmStateActor.Tell(
-                new RedemptionController.StartOTGiftCardRedemption(
-                    1234, "USD", 1000, "user@address.com"));
-            pmStateActor.Tell(new SiftServiceActor.SiftScore(1234, 60));
+                new Commands.StartOTGiftCardRedemption(
+                    1234, Guid.NewGuid(), "USD", 1000, "user@address.com"));
+            pmStateActor.Tell(new Events.SiftScore(1234, Guid.NewGuid(), 60));
 
-            ExpectMsg<RedemptionController.OTGiftCardRedemptionStarted>();
-            ExpectMsg<FraudCheckerActor.FraudCheckPendingManualReview>();
+            ExpectMsg<Events.OTGiftCardRedemptionStarted>();
+            ExpectMsg<Events.FraudCheckPendingManualReview>();
         }
 
         [Fact(DisplayName = "When the sift score is high")]
         public void When_sift_score_is_good()
         {
-            var stateActorProps = Props.Create(() => new RedemptionProcessState(TestActor));
+            var stateActorProps = Props.Create(() => new RedemptionProcessStateActor(TestActor));
             var pmStateActor = ActorOf(stateActorProps, "state-process-manager");
             pmStateActor.Tell(
-                new RedemptionController.StartOTGiftCardRedemption(
-                    1234, "USD", 1000, "user@address.com"));
-            pmStateActor.Tell(new SiftServiceActor.SiftScore(1234, 100));
+                new Commands.StartOTGiftCardRedemption(
+                    1234, Guid.NewGuid(), "USD", 1000, "user@address.com"));
+            pmStateActor.Tell(new Events.SiftScore(1234, Guid.NewGuid(), 100));
 
-            ExpectMsg<RedemptionController.OTGiftCardRedemptionStarted>();
-            ExpectMsg<FraudCheckerActor.FraudCheckPassed>();
+            ExpectMsg<Events.OTGiftCardRedemptionStarted>();
+            ExpectMsg<Events.FraudCheckPassed>();
         }
 
         [Fact(DisplayName = "When the user has a good fraud score and enough points")]
@@ -68,21 +67,21 @@ namespace LoyaltyService.Tests
         {
             const int gpid = 1234;
             const int requiredPoints = 1000;
-            var stateActorProps = Props.Create(() => new RedemptionProcessState(TestActor));
+            var stateActorProps = Props.Create(() => new RedemptionProcessStateActor(TestActor));
             var pmStateActor = ActorOf(stateActorProps, "state-process-manager");
             pmStateActor.Tell(
-                new RedemptionController.StartOTGiftCardRedemption(
-                    gpid, "USD", requiredPoints, "user@address.com"));
-            pmStateActor.Tell(new SiftServiceActor.SiftScore(gpid, 100));
-            pmStateActor.Tell(new PointsService.PointsBalanceResult(gpid, requiredPoints + 1000));
-            pmStateActor.Tell(new GiftService.OtGiftCardOrdered(gpid, "confirmation-number"));
+                new Commands.StartOTGiftCardRedemption(
+                    gpid, Guid.NewGuid(), "USD", requiredPoints, "user@address.com"));
+            pmStateActor.Tell(new Events.SiftScore(gpid, Guid.NewGuid(), 100));
+            pmStateActor.Tell(new Events.PointsBalanceResult(gpid, Guid.NewGuid(), requiredPoints + 1000));
+            pmStateActor.Tell(new Events.OtGiftCardOrdered(gpid, Guid.NewGuid(), "confirmation-number"));
 
-            ExpectMsg<RedemptionController.OTGiftCardRedemptionStarted>();
-            ExpectMsg<FraudCheckerActor.FraudCheckPassed>();
-            ExpectMsg<PointsService.CheckPointsBalance>();
-            ExpectMsg<GiftService.OrderOtGiftCard>();
-            ExpectMsg<TmsService.NotifyUser>();
-            ExpectMsg<RedemptionProcessState.GiftCardOrdered>();
+            ExpectMsg<Events.OTGiftCardRedemptionStarted>();
+            ExpectMsg<Events.FraudCheckPassed>();
+            ExpectMsg<Commands.CheckPointsBalance>();
+            ExpectMsg<Commands.OrderOtGiftCard>();
+            ExpectMsg<Commands.NotifyUser>();
+            ExpectMsg<Events.GiftCardOrdered>();
         }
     }
 }

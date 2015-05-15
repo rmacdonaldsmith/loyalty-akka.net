@@ -28,7 +28,7 @@ namespace LoyaltyService
 	        _notificationService = notificationService;
 	        _redemptionController = redemptionController;
 
-	        Receive<RedemptionController.StartOTGiftCardRedemption>(start => 
+	        Receive<Commands.StartOTGiftCardRedemption>(start => 
                 _redemptionStateActor.Tell(start));
             
             Become(HandleRedemptionStarted);
@@ -41,32 +41,32 @@ namespace LoyaltyService
 
 	    private void HandleRedemptionStarted()
 	    {
-	        Receive<RedemptionController.OTGiftCardRedemptionStarted>(started => 
+	        Receive<Events.OTGiftCardRedemptionStarted>(started => 
                 _fraudCheckActor.Tell(
-                    new FraudCheckerActor.DoFraudCheck(
+                    new Commands.DoFraudCheck(
                         started.Gpid, 
-                        started.RedmeptionProcessId,
+                        started.RedemptionId,
                         started.UserEmail,
                         started.PointsAmount,
                         new Gift(started.PointsAmount, started.Ccy)
                         )));
 
-	        Receive<SiftServiceActor.SiftScore>(score => _fraudCheckActor.Tell(score));
+	        Receive<Events.SiftScore>(score => _fraudCheckActor.Tell(score));
 
-            Receive<PointsService.CheckPointsBalance>(checkPoints => _pointsService.Tell(checkPoints));
+            Receive<Commands.CheckPointsBalance>(checkPoints => _pointsService.Tell(checkPoints));
 
-	        Receive<PointsService.PointsBalanceResult>(result => _fraudCheckActor.Tell(result));
+	        Receive<Events.PointsBalanceResult>(result => _fraudCheckActor.Tell(result));
 
-            Receive<GiftService.OrderOtGiftCard>(orderCard => _giftService.Tell(orderCard));
+            Receive<Commands.OrderOtGiftCard>(orderCard => _giftService.Tell(orderCard));
 
-            Receive<GiftService.OtGiftCardOrdered>(cardOrdered => _fraudCheckActor.Tell(cardOrdered));
+            Receive<Events.OtGiftCardOrdered>(cardOrdered => _fraudCheckActor.Tell(cardOrdered));
 
-            Receive<TmsService.NotifyUser>(notifyUser => _notificationService.Tell(notifyUser));
+            Receive<Commands.NotifyUser>(notifyUser => _notificationService.Tell(notifyUser));
 
             //shortcut the state actor here - seems like it maybe an unnecessary loop.
-	        Receive<TmsService.UserNotified>(notified =>
+	        Receive<Events.UserNotified>(notified =>
 	                                         _redemptionController.Tell(
-	                                             new RedemptionController.RedemptionCompleted(notified.Gpid, _redemptionId)));
+	                                             new Events.RedemptionCompleted(notified.Gpid, _redemptionId)));
 	    }
 
 	    protected override SupervisorStrategy SupervisorStrategy()

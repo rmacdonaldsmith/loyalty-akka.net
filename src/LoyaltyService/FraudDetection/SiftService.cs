@@ -20,7 +20,7 @@ namespace LoyaltyService.FraudDetection
 		    _apiKey = siftApiKey;
 		}
 
-		public void SendOrderInformation(UserInfo userInfo, ReservationsSummary reservations, SiftServiceActor.CheckRequestForFraud requestOrder)
+		public void SendOrderInformation(UserInfo userInfo, ReservationsSummary reservations, Commands.CheckRequestForFraud requestOrder)
 		{
 			var createOrderRequest = new SiftCreateOrder (_apiKey, requestOrder.GPID.ToString(), requestOrder.SessionId){
 				OrderId = requestOrder.RedemptionId.ToString(),
