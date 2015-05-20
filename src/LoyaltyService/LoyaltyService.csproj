@@ -62,6 +62,7 @@
     <Compile Include="FraudDetection\Messages\SiftCreateOrder.cs" />
     <Compile Include="FraudDetection\Messages\SiftOrderResponse.cs" />
     <Compile Include="FraudDetection\Messages\SiftScoreResponse.cs" />
+    <Compile Include="FraudDetection\RedemptionPersistenceActor.cs" />
     <Compile Include="RedemptionState.cs" />
     <Compile Include="User\UserInfo.cs" />
     <Compile Include="FraudDetection\SiftException.cs" />
@@ -92,5 +93,11 @@
     <Content Include="CHANGES.txt" />
     <Content Include="licenses\license.txt" />
     <Content Include="licenses\protoc-license.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LoyaltyService.Common\LoyaltyService.Common.csproj">
+      <Project>{1A6E9473-1748-4BF6-B3A6-AD5CB60109C3}</Project>
+      <Name>LoyaltyService.Common</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

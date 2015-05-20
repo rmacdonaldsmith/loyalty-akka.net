@@ -37,6 +37,7 @@
     <Compile Include="RedemptionProcessException.cs" />
     <Compile Include="Ensure.cs" />
     <Compile Include="Maybe.cs" />
+    <Compile Include="TypeMatch.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
